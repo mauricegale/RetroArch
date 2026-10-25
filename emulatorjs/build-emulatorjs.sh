@@ -151,8 +151,8 @@ for f in $(ls -v *_emscripten.bc); do
   fi
 
   # Compile core
-  echo "BUILD COMMAND: make -C ../ -f Makefile.emulatorjs HAVE_7ZIP=$sevenZip HAVE_CHD=$chd HAVE_THREADS=$threads PTHREAD_POOL_SIZE=$pthread ASYNC=$async HAVE_OPENGLES3=$gles3 STACK_SIZE=$stack_mem INITIAL_HEAP=$heap_mem HAVE_AL=$have_al HAVE_RWEBAUDIO=$have_rwebaudio LIGHT_DEBUG=$light_debug TARGET=${name}_libretro.js -j"$(nproc)
-  make -C ../ -f Makefile.emulatorjs HAVE_7ZIP=$sevenZip HAVE_CHD=$chd HAVE_THREADS=$threads PTHREAD_POOL_SIZE=$pthread ASYNC=$async HAVE_OPENGLES3=$gles3 STACK_SIZE=$stack_mem INITIAL_HEAP=$heap_mem HAVE_AL=$have_al HAVE_RWEBAUDIO=$have_rwebaudio LIGHT_DEBUG=$light_debug TARGET=${name}_libretro.js -j$(nproc) || exit 1
+  echo "BUILD COMMAND: make -C ../ -f Makefile.emulatorjs HAVE_7ZIP=$sevenZip HAVE_CHD=$chd HAVE_THREADS=$threads PTHREAD_POOL_SIZE=$pthread ASYNC=$async HAVE_OPENGLES3=$gles3 STACK_SIZE=$stack_mem INITIAL_HEAP=$heap_mem HAVE_AL=$have_al HAVE_RWEBAUDIO=$have_rwebaudio LIGHT_DEBUG=$light_debug HAVE_CHEEVOS=1 TARGET=${name}_libretro.js -j"$(nproc)
+  make -C ../ -f Makefile.emulatorjs HAVE_7ZIP=$sevenZip HAVE_CHD=$chd HAVE_THREADS=$threads PTHREAD_POOL_SIZE=$pthread ASYNC=$async HAVE_OPENGLES3=$gles3 STACK_SIZE=$stack_mem INITIAL_HEAP=$heap_mem HAVE_AL=$have_al HAVE_RWEBAUDIO=$have_rwebaudio LIGHT_DEBUG=$light_debug HAVE_CHEEVOS=1 TARGET=${name}_libretro.js -j$(nproc) || exit 1
 
   # Move executable files
   out_dir="../../EmulatorJS/data/cores"
@@ -178,10 +178,10 @@ for f in $(ls -v *_emscripten.bc); do
   out_name="${out_name}-wasm.data"
 
   if [ $wasm = 0 ]; then
-    7z a ${out_dir}/${out_name} ../${name}_libretro.js.mem ../${name}_*.js
+    7z a ${out_dir}/${out_name} ../${name}_libretro.js.mem ../${name}_*.js || exit 1
     rm ../${name}_libretro.js.mem
   else
-    7z a ${out_dir}/${out_name} ../${name}_libretro.wasm ../${name}_*.js
+    7z a ${out_dir}/${out_name} ../${name}_libretro.wasm ../${name}_*.js || exit 1
     rm ../${name}_libretro.wasm
   fi
   rm -f ../${name}_libretro.js

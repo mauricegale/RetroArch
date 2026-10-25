@@ -167,7 +167,7 @@ endif
 LDFLAGS := -L. $(LIBS) -s STACK_SIZE=$(STACK_SIZE) -s INITIAL_MEMORY=$(INITIAL_HEAP) -s NO_EXIT_RUNTIME=1 \
            -s EXPORTED_RUNTIME_METHODS=$(EXPORTS) \
            -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_FUNCTIONS="$(EXPORTED_FUNCTIONS)" \
-           -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+           -s ERROR_ON_UNDEFINED_SYMBOLS=0 -sDEFAULT_TO_CXX \
            -lidbfs.js \
            -s MODULARIZE=1 -s EXPORT_NAME="EJS_Runtime" \
            -s ENVIRONMENT=web,worker -s WASM_BIGINT=1 \
@@ -315,6 +315,10 @@ else
 endif
 
 CFLAGS += -Wall -I. -Ilibretro-common/include -Ideps/7zip -std=gnu99
+
+ifeq ($(HAVE_CHEEVOS), 1)
+   CFLAGS += -Ideps/rcheevos/include
+endif
 
 RARCH_OBJ := $(addprefix $(OBJDIR)/,$(OBJ))
 
