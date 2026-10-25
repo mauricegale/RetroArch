@@ -147,6 +147,7 @@
 #ifdef HAVE_CHEEVOS
 #include "cheevos/cheevos.h"
 #include "cheevos/cheevos_menu.h"
+#include "deps/rcheevos/include/rc_hash.h"
 #endif
 
 #ifdef HAVE_TRANSLATE
@@ -6237,6 +6238,62 @@ char* get_memory_data(char* key) {
    sprintf(state_data, "%zu|%zu", size, (unsigned long)data);
    return state_data; // This must be freed by the JavaScript side!
 }
+
+#ifdef HAVE_CHEEVOS
+/* Returns the RetroAchievements hash for a ROM already present in the
+ * Emscripten filesystem, or NULL. Console ids come from rc_consoles.h.
+ * The returned string must be freed by the JavaScript side. */
+char* ejs_get_rom_hash(const char* path, int console_id) {
+   FILE*    file;
+   uint8_t* buffer;
+   char*    result;
+   long     size;
+   char     hash[33];
+
+   if (!path)
+      return NULL;
+
+   if (!(file = fopen(path, "rb"))) {
+      RARCH_LOG("[EJS] Could not open ROM for hashing: %s\n", path);
+      return NULL;
+   }
+
+   fseek(file, 0, SEEK_END);
+   size = ftell(file);
+   fseek(file, 0, SEEK_SET);
+
+   if (size <= 0) {
+      fclose(file);
+      return NULL;
+   }
+
+   if (!(buffer = (uint8_t*)malloc((size_t)size))) {
+      fclose(file);
+      return NULL;
+   }
+
+   if (fread(buffer, 1, (size_t)size, file) != (size_t)size) {
+      free(buffer);
+      fclose(file);
+      return NULL;
+   }
+   fclose(file);
+
+   memset(hash, 0, sizeof(hash));
+   if (!rc_hash_generate_from_buffer(hash, (uint32_t)console_id,
+            buffer, (size_t)size)) {
+      RARCH_LOG("[EJS] rc_hash failed for console %d: %s\n", console_id, path);
+      free(buffer);
+      return NULL;
+   }
+   free(buffer);
+
+   if (!(result = (char*)malloc(sizeof(hash))))
+      return NULL;
+   memcpy(result, hash, sizeof(hash));
+   return result;
+}
+#endif
 
 bool ejs_is_paused(void) {
    return EJS_PAUSED;
